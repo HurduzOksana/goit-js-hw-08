@@ -1,50 +1,63 @@
 
 import localStorageApi from './localstorage';
+// import throttle from './lodash.throttle';
 
-// Робимо доступ до форми
+// Робимо посилання на всю форму
 const formContactElement = document.querySelector(`.feedback-form`);
 
+// Використовуємо константу незмінного значення для подальшого використання
+const STORAGE_KEY = `feedback-form-state`;
+
+
+
+// Виносимо змінну як масив, куди будемо зберігати введені дані
 const userData = {};
 
-const formFill = () => {
-    const dataFromLocalStorage = localStorageApi.load(`feedback-form-state`);
-    // Перевірка: якщо undefined, то нічого не робимо
-    if (dataFromLocalStorage === undefined) {
-        return;
-    }
-    const formEl = formContactElement;
-    for (const key in dataFromLocalStorage) {
-        if (dataFromLocalStorage.hasOwnproperty(key)) {
-            formEl[key].value = dataFromLocalStorage[key];
-        }
-    }
-};
-
-// Описуємо функцію-обробник
-
-onFormElementChange = event => {
-    // Виносимо цільовий елемент
+// Функція обробки введених даних
+onFormElementInput = event => {
+    // Іменуємо змінні для зручності
     const target = event.target;
-    // Доступ до значення елемента
     const formElementValue = target.value;
-    // Доступ до імені елемента
     const formElementName = target.name;
-
+    // Ім'я елемента, куди користувач ввів дані, буде дорівнювати значенню цих даних
     userData[formElementName] = formElementValue;
     // Зберігаємо дані в local storage
-    localStorageApi.save(`feedback-form-state`, userData);
+    localStorageApi.save(STORAGE_KEY, userData);
 };
 
+
+// const formFill = () => {
+//     const dataFromLocalStorage = localStorageApi.load(STORAGE_KEY);
+//     const formEl = formContactElement;
+//     for (const key in dataFromLocalStorage) {
+//         if (dataFromLocalStorage.hasOwnproperty(key)) {
+//             formEl[key].value = dataFromLocalStorage[key];
+//         }
+//     }
+// };
+
+// formFill();
+
+// Функція обробки submit'a
 const onFormSubmit = event => {
-    // Запобігаємо перезавантаженню
+    // Запобігаємо перезавантаженню сторінки
     event.preventDefault();
-    localStorageApi.remove(`feedback-form-state`);
-    // Чистимо local storage від даних після сабміта
+    // Виводимо в консоль об'єкт з полями email, message та їхніми поточними значеннями.
+    console.log(userData);
+    // Скидаємо значення всіх полів після submit'a
     event.currentTarget.reset();
+    // Очищаємо localstorage після submit'a
+    // localStorageApi.removeItem(STORAGE_KEY, userData);
 }
 
+// Функція для того, щоб дістати значення всіх полів з local storage при перезавантаженні сторінки
+function onLoadUserData() {
+    const savedMessage = localStorage.getItem(STORAGE_KEY);
+    if (savedMessage) {
+        console.log(savedMessage);
+    }
+};
 
-formContactElement.addEventListener(`change`, onFormElementChange);
+// Назначаємо слухачів на події
+formContactElement.addEventListener(`input`, onFormElementInput);
 formContactElement.addEventListener(`submit`, onFormSubmit);
-
-formFill();
