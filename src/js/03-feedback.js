@@ -24,12 +24,16 @@ const onFormElChange = event => {
     const formElName = target.name;
     userData[formElName] = formElValue;
     localStorageApi.save(DATA_KEY, userData);
+    
+    
 };
+
 
 const onContactFormSubmit = event => {
     event.preventDefault();
     localStorageApi.remove(DATA_KEY);
     event.currentTarget.reset();
+    console.log(userData);
 };
 
 contactFormEl.addEventListener(`input`, throttle(onFormElChange, 500));
